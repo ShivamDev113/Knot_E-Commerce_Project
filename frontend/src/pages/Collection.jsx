@@ -13,6 +13,9 @@ const Collection = () => {
   const [category, setcategory] = useState([]) // which categories (MEN/WOMEN/KIDS) are selected.
   const [subCategory, setsubCategory] = useState([]) // which types (Topwear/Bottomwear/Winterwear) are selected.
   const [sortType, setsortType] = useState('relevant')
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 16
+
   const toggleCategory=(e)=>{
     
     if(category.includes(e.target.value)){
@@ -48,6 +51,7 @@ const Collection = () => {
       productsCopy=productsCopy.filter(item=>subCategory.includes(item.subCategory));
     }
     setfilterProducts(productsCopy)
+    setCurrentPage(1)
   }
 
   const sortProduct=()=>{
@@ -74,6 +78,16 @@ const Collection = () => {
   useEffect(()=>{
     sortProduct();
   },[sortType])
+
+  const totalPages = Math.max(1, Math.ceil(filterProducts.length / itemsPerPage))
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const currentProducts = filterProducts.slice(startIndex, startIndex + itemsPerPage)
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
 
   // useEffect(() => {
   //   console.log(category);
@@ -143,10 +157,44 @@ const Collection = () => {
       {/* Mapping Products---> */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6 p-5">
         {
-          filterProducts.map((item,index)=> (
-            <ProductItem key={index} id={item._id} image={item.image} name={item.name} price={item.price}/>
+          currentProducts.map((item,index)=> (
+            <ProductItem key={item._id || index} id={item._id} image={item.image} name={item.name} price={item.price}/>
           ))
         }
+      </div>
+
+      {/* Pagination */}
+      <div className="flex flex-col gap-3 items-center justify-center mt-8">
+        <p className="text-sm text-gray-400">
+          Showing {currentProducts.length} of {filterProducts.length} items
+        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            className="px-4 py-2 rounded-xl border border-gray-300 text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Prev
+          </button>
+
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => setCurrentPage(index + 1)}
+              className={`px-4 py-2 rounded-xl border text-sm font-medium ${currentPage === index + 1 ? 'bg-black text-white border-black' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}
+            >
+              {index + 1}
+            </button>
+          ))}
+
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            className="px-4 py-2 rounded-xl border border-gray-300 text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
+        </div>
       </div>
 
       </div>

@@ -13,13 +13,14 @@ gsap.registerPlugin(ScrollTrigger)
 
 const Home = () => {
   return (
-    <div className="overflow-x-hidden">
+    /* Full dark background wrapping every section so no white bleeds through */
+    <div className="overflow-x-hidden bg-[#0d0d0d]">
       <Header />
       <LatestCollection />
       <BestSeller />
       <OurPolicy />
-      <NewsLetterBox />
       <Grid_temp />
+      <NewsLetterBox />
     </div>
   )
 }
